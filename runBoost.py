@@ -7,7 +7,7 @@ from input.inputData2 import InputData
 
 DEBUG_MODE = False
 SHOW_PLOT = True
-NUM_BOOSTING_ITERATIONS = 100
+NUM_BOOSTING_ITERATIONS = 300
 NUM_TRAINING_DATA_PTS = 100
 
 
@@ -129,11 +129,11 @@ class Booster:
         return 0.5 * math.log((1 - error) / error)
 
     @staticmethod
-    def generate_strong_classifier(
+    def generate_strong_classifier_iter(
         num_boosting_iterations: int,
         num_training_data_pts: int,
         classifiers: list[WeakClassifier],
-    ) -> StrongClassifier:
+    ) -> Iterator[StrongClassifier]:
         """Generate a strong classifier using boosting."""
         weights = Booster.init_weights(num_training_data_pts)
         strong_classifier = StrongClassifier()
@@ -144,7 +144,7 @@ class Booster:
             weights = Booster.rescale_weights(
                 weights, classifiers[min_error_idx].idxsMisclassified
             )
-        return strong_classifier
+            yield strong_classifier
 
     @staticmethod
     def classify_training_data(
@@ -250,10 +250,15 @@ BagOfClassifiers.print_wrong_by_classifier(classifiers)
 # run the boosting algorithm
 numTrainingDataPts = len(training_data)
 accuracies = []
-for numIter in range(1, NUM_BOOSTING_ITERATIONS):
-    strong_classifier = Booster.generate_strong_classifier(
-        numIter, numTrainingDataPts, classifiers
-    )
+strong_classifier_iter = Booster.generate_strong_classifier_iter(
+    NUM_BOOSTING_ITERATIONS, numTrainingDataPts, classifiers
+)
+numIter = 0
+for strong_classifier in strong_classifier_iter:
+    numIter += 1
+    # strong_classifier = Booster.generate_strong_classifier(
+    #     numIter, numTrainingDataPts, classifiers
+    # )
     accuracy = Booster.classify_training_data(strong_classifier, training_data, labels)
     accuracies.append((numIter, accuracy))
     print(f"accuracy={accuracy} with numIter={numIter}")
