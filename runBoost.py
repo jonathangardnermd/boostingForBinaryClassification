@@ -256,9 +256,6 @@ strong_classifier_iter = Booster.generate_strong_classifier_iter(
 numIter = 0
 for strong_classifier in strong_classifier_iter:
     numIter += 1
-    # strong_classifier = Booster.generate_strong_classifier(
-    #     numIter, numTrainingDataPts, classifiers
-    # )
     accuracy = Booster.classify_training_data(strong_classifier, training_data, labels)
     accuracies.append((numIter, accuracy))
     print(f"accuracy={accuracy} with numIter={numIter}")
